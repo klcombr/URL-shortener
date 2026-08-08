@@ -241,25 +241,14 @@ function closeAuthModal() {
 async function handleAuth(e) {
   e.preventDefault();
 
-  console.log('=== INICIANDO AUTENTICAÇÃO ===');
-  console.log('Auth form:', authForm);
-  console.log('Auth form elements:', authForm ? authForm.elements : 'No form');
-
-  // Método direto - mais confiável
   const emailInput = document.getElementById('email');
   const passwordInput = document.getElementById('password');
-
-  console.log('Email input element:', emailInput);
-  console.log('Password input element:', passwordInput);
 
   const email = emailInput ? emailInput.value.trim() : '';
   const password = passwordInput ? passwordInput.value.trim() : '';
   const isLogin = authForm.dataset.mode === 'login';
 
-  console.log('Dados capturados:', { email, password, isLogin });
-
   if (!email || !password) {
-    console.log('ERRO: Campos vazios');
     showMessage(t('requiredFields'), 'error');
     return;
   }
@@ -271,8 +260,6 @@ async function handleAuth(e) {
       password: password,
     });
 
-    console.log('Enviando para:', `${API_BASE}${endpoint}`);
-
     const response = await fetch(`${API_BASE}${endpoint}`, {
       method: 'POST',
       headers: {
@@ -281,19 +268,14 @@ async function handleAuth(e) {
       body: body,
     });
 
-    console.log('Status HTTP:', response.status);
-
     const responseText = await response.text();
-    console.log('Resposta bruta:', responseText);
 
     if (!response.ok) {
-      console.log('ERRO na resposta');
       showMessage(`Erro: ${responseText}`, 'error');
       return;
     }
 
     const data = JSON.parse(responseText);
-    console.log('Dados parseados:', data);
 
     if (isLogin) {
       authToken = data.access_token;
@@ -388,25 +370,54 @@ async function loadUserLinks() {
       const linkItem = document.createElement('div');
       linkItem.className = 'link-item card';
 
-      linkItem.innerHTML = `
-        <div class="link-info">
-          <div class="original-url">${url.original_url}</div>
-          <div class="short-url">
-            <a href="${url.short_url}" target="_blank">${url.short_url}</a>
-            <button class="btn-copy-small" data-url="${url.short_url}">
-              <i class="fas fa-copy"></i>
-            </button>
-          </div>
-          <div class="link-stats">
-            <span>Cliques: ${url.clicks}</span>
-            <span>Criado em: ${new Date(url.created_at).toLocaleDateString('pt-BR')}</span>
-          </div>
-        </div>
-        <button class="btn-delete" data-id="${url.id}">
-          <i class="fas fa-trash"></i>
-        </button>
-      `;
+      const linkInfo = document.createElement('div');
+      linkInfo.className = 'link-info';
 
+      const originalUrl = document.createElement('div');
+      originalUrl.className = 'original-url';
+      originalUrl.textContent = url.original_url;
+
+      const shortUrlWrap = document.createElement('div');
+      shortUrlWrap.className = 'short-url';
+
+      const shortUrlLink = document.createElement('a');
+      shortUrlLink.href = url.short_url;
+      shortUrlLink.target = '_blank';
+      shortUrlLink.rel = 'noopener noreferrer';
+      shortUrlLink.textContent = url.short_url;
+
+      const copyBtnSmall = document.createElement('button');
+      copyBtnSmall.className = 'btn-copy-small';
+      copyBtnSmall.dataset.url = url.short_url;
+      const copyIcon = document.createElement('i');
+      copyIcon.className = 'fas fa-copy';
+      copyBtnSmall.appendChild(copyIcon);
+
+      shortUrlWrap.appendChild(shortUrlLink);
+      shortUrlWrap.appendChild(copyBtnSmall);
+
+      const linkStats = document.createElement('div');
+      linkStats.className = 'link-stats';
+      const clicksSpan = document.createElement('span');
+      clicksSpan.textContent = `Cliques: ${url.clicks}`;
+      const createdSpan = document.createElement('span');
+      createdSpan.textContent = `Criado em: ${new Date(url.created_at).toLocaleDateString('pt-BR')}`;
+      linkStats.appendChild(clicksSpan);
+      linkStats.appendChild(createdSpan);
+
+      linkInfo.appendChild(originalUrl);
+      linkInfo.appendChild(shortUrlWrap);
+      linkInfo.appendChild(linkStats);
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'btn-delete';
+      deleteBtn.dataset.id = url.id;
+      const deleteIcon = document.createElement('i');
+      deleteIcon.className = 'fas fa-trash';
+      deleteBtn.appendChild(deleteIcon);
+
+      linkItem.appendChild(linkInfo);
+      linkItem.appendChild(deleteBtn);
       linksList.appendChild(linkItem);
     });
 

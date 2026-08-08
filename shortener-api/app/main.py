@@ -3,6 +3,8 @@ from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
 from app.database import db
 from app.models.url import User, Url
 from app.core.config import settings
+from app.core.ratelimit import rate_limit, record_failure, clear_failures
+from app.core.validators import is_valid_http_url
 import secrets
 import string
 from datetime import datetime
@@ -23,7 +25,7 @@ with app.app_context():
 @app.after_request
 def add_cors_headers(response):
     if response:
-        response.headers.add('Access-Control-Allow-Origin', '*')
+        response.headers.add('Access-Control-Allow-Origin', settings.CORS_ORIGIN)
         response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
         response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
     return response
@@ -43,12 +45,17 @@ def redirect_to_url(short_code):
     if not url:
         return jsonify({"error": "URL não encontrada"}), 404
 
+    # Defense in depth: nunca redirecionar para algo que não seja http/https
+    if not is_valid_http_url(url.original_url):
+        return jsonify({"error": "URL de destino inválida"}), 400
+
     url.clicks += 1
     db.session.commit()
 
-    return redirect(url.original_url)
+    return redirect(url.original_url.strip())
 
 @app.route('/api/v1/auth/register', methods=['POST'])
+@rate_limit()
 def register():
     if request.is_json:
         data = request.get_json()
@@ -74,6 +81,7 @@ def register():
     return jsonify({"message": "Usuário criado com sucesso"}), 201
 
 @app.route('/api/v1/auth/login', methods=['POST'])
+@rate_limit()
 def login():
     from app.core.security import verify_password, create_access_token
 
@@ -90,8 +98,10 @@ def login():
 
     user = User.query.filter_by(email=email).first()
     if not user or not verify_password(password, user.hashed_password):
+        record_failure(request.remote_addr or "unknown")
         return jsonify({"error": "Email ou senha incorretos"}), 401
 
+    clear_failures(request.remote_addr or "unknown")
     access_token = create_access_token({"sub": str(user.id)})
     return jsonify({"access_token": access_token, "token_type": "bearer"})
 
@@ -103,6 +113,11 @@ def create_url():
 
     custom_code = data.get('custom_code')
     original_url = data.get('original_url')
+
+    if not is_valid_http_url(original_url):
+        return jsonify({"error": "URL inválida. Use http:// ou https://"}), 400
+
+    original_url = original_url.strip()
 
     if custom_code:
         if Url.query.filter_by(short_code=custom_code).first():
