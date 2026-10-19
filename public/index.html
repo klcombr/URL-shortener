@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Encurtador — links curtos com analytics</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<main>
+  <header>
+    <h1>Encurtador</h1>
+    <p class="sub">Cole a URL. Ganhe um link curto. Veja os cliques.</p>
+  </header>
+
+  <section id="auth" class="panel">
+    <form id="auth-form">
+      <input type="email" id="email" placeholder="email" required autocomplete="username">
+      <input type="password" id="password" placeholder="senha (8+ caracteres)" required autocomplete="current-password">
+      <div class="row">
+        <button type="submit" data-mode="login">Entrar</button>
+        <button type="button" id="to-register" class="ghost">Criar conta</button>
+      </div>
+      <p id="auth-error" class="error" hidden></p>
+    </form>
+  </section>
+
+  <section id="app" hidden>
+    <form id="link-form" class="panel">
+      <input type="url" id="url" placeholder="https://exemplo.com/pagina-longa" required>
+      <input type="text" id="slug" placeholder="slug personalizado (opcional)" pattern="[A-Za-z0-9]{1,32}">
+      <button type="submit">Encurtar</button>
+      <p id="link-error" class="error" hidden></p>
+    </form>
+
+    <section class="panel">
+      <div class="row between">
+        <h2>Seus links</h2>
+        <button id="logout" class="ghost small">Sair</button>
+      </div>
+      <ul id="links"><li class="empty">Nenhum link ainda.</li></ul>
+    </section>
+  </section>
+</main>
+<script src="/static/app.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,42 @@
+:root {
+  --bg: #0d1117; --panel: #161b22; --line: #30363d;
+  --ink: #e6edf3; --dim: #8b949e; --accent: #2f81f7; --ok: #3fb950; --bad: #f85149;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif;
+}
+main { max-width: 720px; margin: 0 auto; padding: 56px 24px 80px; }
+header h1 { margin: 0; font-size: 34px; letter-spacing: -.03em; }
+header .sub { color: var(--dim); margin: 6px 0 28px; }
+h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .07em; color: var(--dim); margin: 0; }
+
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 20px; margin-bottom: 18px; }
+form { display: flex; flex-direction: column; gap: 10px; }
+input, button { font: inherit; padding: 11px 13px; border-radius: 8px; border: 1px solid var(--line); }
+input { background: var(--bg); color: var(--ink); }
+input:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: transparent; }
+button { background: var(--accent); color: #fff; border: none; cursor: pointer; font-weight: 600; }
+button:hover { filter: brightness(1.1); }
+button.ghost { background: transparent; color: var(--dim); border: 1px solid var(--line); }
+button.small { padding: 7px 12px; font-size: 13px; }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.row.between { justify-content: space-between; }
+.error { color: var(--bad); margin: 4px 0 0; font-size: 14px; }
+
+#links { list-style: none; padding: 0; margin: 14px 0 0; }
+#links li {
+  display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; align-items: center;
+  padding: 14px 0; border-top: 1px solid var(--line);
+}
+#links li.empty, .empty { color: var(--dim); grid-template-columns: 1fr; }
+#links .short { font-weight: 600; color: var(--accent); text-decoration: none; }
+#links .dest { color: var(--dim); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#links .stats { text-align: right; font-variant-numeric: tabular-nums; }
+#links .stats b { font-size: 20px; }
+#links .stats small { display: block; color: var(--dim); font-size: 12px; }
+#links .del { background: none; color: var(--dim); border: none; cursor: pointer; padding: 4px 8px; font-size: 16px; }
+#links .del:hover { color: var(--bad); }
+#links .spark { display: flex; gap: 2px; align-items: flex-end; height: 18px; margin-top: 6px; }
+#links .spark i { display: block; width: 6px; background: var(--ok); border-radius: 1px; }
